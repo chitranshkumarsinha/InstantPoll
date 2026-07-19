@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Mail, Lock, Loader2, AlertCircle, LogIn, UserPlus } from 'lucide-react';
+import { API_URL } from '../config.js';
 
 export default function Login() {
   const [isLogin, setIsLogin] = useState(true);

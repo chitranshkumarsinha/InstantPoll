@@ -27,6 +27,7 @@ function Navbar() {
         <Link to="/" className="flex items-center gap-2 font-bold text-xl tracking-tight text-amber-500 hover:text-amber-400 transition">
           <Vote className="w-6 h-6" />
           <span>InstantPoll</span>
+          {/* <span>VoteNow</span> */}
         </Link>
 
         {/* Navigation Links */}

@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { Loader2, AlertCircle, ArrowRight, BarChart3 } from 'lucide-react';
+import { API_URL } from '../config.js';
 
 export default function PublicPolls() {
   const [polls, setPolls] = useState([]);

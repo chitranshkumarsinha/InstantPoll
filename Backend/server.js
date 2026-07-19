@@ -16,15 +16,21 @@ const app = express();
 const server = createServer(app);
 
 // 2. Attach Socket.io to the HTTP Server
+const frontendUrl = process.env.CLIENT
+
 const io = new Server(server, {
   cors: {
-    origin: 'http://localhost:5173', // Allow your local Vite frontend
-    methods: ['GET', 'POST']
+    origin: frontendUrl, 
+    methods: ['GET', 'POST'],
+    credentials: true
   }
 });
 
-// Middleware
-app.use(cors());
+app.use(cors({
+    origin: frontendUrl,
+    methods: ['GET', 'POST', 'PUT', 'DELETE'],
+    credentials: true
+}));
 app.use(express.json());
 
 // 3. Middle-tier Injection: Make 'io' accessible inside our router files

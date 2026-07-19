@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
 import { io } from 'socket.io-client';
 import { Mail, Loader2, AlertCircle, Activity, ChevronRight } from 'lucide-react';
+import { API_URL } from '../config.js';
 
 export default function VotingRoom() {
   const { code } = useParams();
@@ -62,7 +63,7 @@ export default function VotingRoom() {
     return () => socket.disconnect();
   }, [poll]);
 
-  // 3. Handle Email Submit
+
 // 3. Handle Email Submit
   const handleEmailSubmit = async (e) => {
     e.preventDefault();

@@ -1,6 +1,8 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Plus, Trash2, Loader2, AlertCircle, CheckCircle, Copy } from 'lucide-react';
+import { API_URL } from '../config.js';
+
 
 export default function CreatePoll() {
   const navigate = useNavigate();
