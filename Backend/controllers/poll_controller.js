@@ -314,6 +314,8 @@ export const CreatePoll = async (req, res) => {
         const parsedHours = parseInt(hoursUntilExpire, 10) || 24;
         
         expiresAt.setHours(expiresAt.getHours() + parsedHours);
+
+        let secretCode = generateSecretCode()
         let isUnique = false;
 
         // Ensure code doesn't already exist
