@@ -1,4 +1,5 @@
 import pool from '../db.js';
+import redis from '../redis.js'
 
 // Helper to generate a 6-character random alphanumeric code
 const generateSecretCode = () => Math.random().toString(36).substring(2, 8).toUpperCase();
@@ -99,7 +100,12 @@ export const CastVote = async (req, res) => {
 
         // 4. Fetch the options for this poll
         const optionsResult = await pool.query(
-            'SELECT id, option_text FROM poll_options WHERE poll_id = $1 ORDER BY id ASC',
+            `SELECT po.id, po.option_text, COUNT(v.id)::int as votes 
+             FROM poll_options po 
+             LEFT JOIN votes v ON po.id = v.option_id 
+             WHERE po.poll_id = $1 
+             GROUP BY po.id 
+             ORDER BY po.id ASC`,
             [poll.id]
         );
 
@@ -128,6 +134,13 @@ export const check_email = async (req, res) => {
         return res.status(400).json({ error: 'Email is required' });
     }
 
+    // Standard Regular Expression to check for valid email formatting (e.g., user@domain.com)
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    
+    if (!emailRegex.test(email)) {
+        return res.status(400).json({ error: 'Please enter a valid email address.' });
+    }
+
     try {
         const voteCheck = await pool.query(
             'SELECT id FROM votes WHERE poll_id = $1 AND voter_email = $2',
@@ -152,13 +165,25 @@ export const vote = async (req, res) => {
         return res.status(400).json({ error: 'Email and Option ID are required' });
     }
 
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(email)) {
+        return res.status(400).json({ error: 'Please enter a valid email address.' });
+    }
+
     try {
-        // Attempt to insert the vote
+        // 1. Attempt to insert the vote permanently into Postgres
         await pool.query(
             'INSERT INTO votes (poll_id, option_id, voter_email) VALUES ($1, $2, $3)',
             [pollId, optionId, email]
         );
 
+        // 2. 🔥 TRIGGER THE WEBSOCKET ANIMATION
+        // This broadcasts the update to everyone looking at this specific poll room
+        if (req.io) {
+            req.io.to(pollId.toString()).emit('vote_cast', { optionId });
+        }
+
+        // 3. Respond to the user
         res.json({ message: 'Vote successfully cast!' });
 
     } catch (err) {
@@ -171,3 +196,102 @@ export const vote = async (req, res) => {
         res.status(500).json({ error: 'Server Error' });
     }
 }
+
+//redis code
+
+// export const check_email = async (req, res) => {
+//     const { email } = req.body;
+//     const pollId = req.params.id;
+
+//     if (!email) {
+//         return res.status(400).json({ error: 'Email is required' });
+//     }
+
+//     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+//     if (!emailRegex.test(email)) {
+//         return res.status(400).json({ error: 'Please enter a valid email address.' });
+//     }
+
+//     try {
+//         const redisKey = `poll:${pollId}:voters`;
+
+//         // O(1) Check against Redis instead of querying Postgres
+//         const hasVoted = await redis.sismember(redisKey, email);
+        
+//         res.json({ hasVoted: hasVoted === 1 });
+//     } catch (err) {
+//         console.error('Email Check Error:', err.message);
+//         res.status(500).json({ error: 'Server Error' });
+//     }
+// }
+
+// export const vote = async (req, res) => {
+//     const { email, optionId } = req.body;
+//     const pollId = req.params.id;
+
+//     if (!email || !optionId) {
+//         return res.status(400).json({ error: 'Email and Option ID are required' });
+//     }
+
+//     // Keep your excellent regex validation!
+//     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+//     if (!emailRegex.test(email)) {
+//         return res.status(400).json({ error: 'Please enter a valid email address.' });
+//     }
+
+//     try {
+//         // Create a unique Redis Set key for this specific poll
+//         const redisKey = `poll:${pollId}:voters`;
+
+//         // 1. O(1) In-Memory Check: Has this email voted?
+//         const hasVoted = await redis.sismember(redisKey, email);
+//         if (hasVoted) {
+//             return res.status(403).json({ error: 'This email has already voted.' });
+//         }
+
+//         // 2. Lock it in: Add the email to the Redis Set instantly
+//         await redis.sadd(redisKey, email);
+
+//         // 3. Trigger the real-time WebSocket animation
+//         if (req.io) {
+//             req.io.to(pollId.toString()).emit('vote_cast', { optionId });
+//         }
+
+//         // 4. Respond to the user immediately (Usually under 30ms total response time!)
+//         res.json({ message: 'Vote successfully cast!' });
+
+//         // 5. Background Task: Sync to PostgreSQL permanently
+//         // Notice we do NOT use 'await' here. We let this run independently in the background.
+//         pool.query(
+//             'INSERT INTO votes (poll_id, option_id, voter_email) VALUES ($1, $2, $3)',
+//             [pollId, optionId, email]
+//         ).catch(err => {
+//             console.error('CRITICAL: Background DB Sync Failed', err.message);
+//         });
+
+//     } catch (err) {
+//         console.error('Vote Processing Error:', err.message);
+//         res.status(500).json({ error: 'Server Error' });
+//     }
+// }
+
+export const GetPublicPolls = async (req, res) => {
+    try {
+        const now = new Date();
+        
+        // Fetch polls that are public AND where the expiration date is in the future
+        const result = await pool.query(
+            `SELECT id, question, secret_code, expires_at 
+             FROM polls 
+             WHERE is_public = true AND expires_at > $1 
+             ORDER BY created_at DESC 
+             LIMIT 15`,
+            [now]
+        );
+
+        res.json({ polls: result.rows });
+    } catch (err) {
+        console.error(err.message);
+        res.status(500).json({ error: 'Server Error' });
+    }
+};
