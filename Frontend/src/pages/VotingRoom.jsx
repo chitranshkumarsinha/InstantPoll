@@ -20,7 +20,7 @@ export default function VotingRoom() {
   useEffect(() => {
     const fetchPoll = async () => {
       try {
-        const res = await fetch(`http://localhost:5000/api/polls/${code}`);
+        const res = await fetch(`https://instantpoll-backend.onrender.com/api/polls/${code}`);
         const data = await res.json();
         if (!res.ok) throw new Error(data.error || 'Failed to fetch poll');
         
@@ -40,7 +40,7 @@ export default function VotingRoom() {
   useEffect(() => {
     if (!poll) return;
 
-    const socket = io('http://localhost:5000');
+    const socket = io('https://instantpoll-backend.onrender.com');
     
     socket.on('connect', () => {
       console.log('🟢 Connected to WebSocket Server');
@@ -71,7 +71,7 @@ export default function VotingRoom() {
     setError('');
     
     try {
-      const res = await fetch(`http://localhost:5000/api/polls/${poll.id}/check-email`, {
+      const res = await fetch(`https://instantpoll-backend.onrender.com/api/polls/${poll.id}/check-email`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email })
@@ -100,7 +100,7 @@ export default function VotingRoom() {
     setError('');
     
     try {
-      const res = await fetch(`http://localhost:5000/api/polls/${poll.id}/vote`, {
+      const res = await fetch(`https://instantpoll-backend.onrender.com/api/polls/${poll.id}/vote`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email, optionId })

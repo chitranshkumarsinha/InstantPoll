@@ -11,7 +11,7 @@ export default function PublicPolls() {
   useEffect(() => {
     const fetchPublicPolls = async () => {
       try {
-        const res = await fetch('http://localhost:5000/api/polls/public/active');
+        const res = await fetch('https://instantpoll-backend.onrender.com/api/polls/public/active');
         const data = await res.json();
         if (!res.ok) throw new Error(data.error || 'Failed to load public polls');
         setPolls(data.polls);

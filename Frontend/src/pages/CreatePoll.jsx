@@ -62,7 +62,7 @@ export default function CreatePoll() {
 
     try {
       const token = localStorage.getItem('token');
-      const res = await fetch('http://localhost:5000/api/polls/create', {
+      const res = await fetch('https://instantpoll-backend.onrender.com/api/polls/create', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
