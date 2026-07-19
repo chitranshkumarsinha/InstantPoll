@@ -1,24 +1,11 @@
-import pg from 'pg';
 import dotenv from 'dotenv';
-
+import postgres from 'postgres'
 dotenv.config();
 
-const { Pool } = pg;
-
-const pool = new Pool({
-    connectionString: process.env.DATABASE_URL,
-    ssl: {
-        rejectUnauthorized: false
-    }
+const sql = postgres(process.env.DATABASE_URL, {
+  ssl: {
+    rejectUnauthorized: false
+  }
 });
 
-pool.on('connect', () => {
-    console.log('✅ Connected to PostgreSQL (Supabase)');
-});
-
-pool.on('error', (err) => {
-    console.error('❌ Unexpected error on idle client', err);
-    process.exit(-1);
-});
-
-export default pool;
+export default sql;
