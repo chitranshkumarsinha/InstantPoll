@@ -69,7 +69,7 @@ export default function Login() {
         if (!res.ok) throw new Error(data.error || 'Invalid OTP.');
         
         localStorage.setItem('token', data.token);
-        navigate('/create');
+        navigate('/verify-otp', { state: { email, password } });
       }
       
     } catch (err) {

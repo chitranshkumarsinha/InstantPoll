@@ -5,6 +5,7 @@ import Login from './pages/Login';
 import CreatePoll from './pages/CreatePoll';
 import VotingRoom from './pages/VotingRoom';
 import PublicPolls from './pages/PublicPolls';
+import VerifyOtp from './pages/VerifyOtp';
 
 // We extract the Navbar into its own component so it can use the 'useLocation' and 'useNavigate' hooks
 function Navbar() {
@@ -78,7 +79,9 @@ export default function App() {
             <Route path="/login" element={<Login />} />
             <Route path="/create" element={<CreatePoll />} />
             <Route path="/poll/:code" element={<VotingRoom />} />
-            <Route path='/public' element={<PublicPolls/>}></Route>
+            <Route path='/public' element={<PublicPolls/>}/>
+            <Route path="/verify-otp" element={<VerifyOtp />} />
+            
           </Routes>
         </main>
 
