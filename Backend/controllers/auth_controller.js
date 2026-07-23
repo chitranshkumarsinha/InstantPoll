@@ -99,10 +99,20 @@ import nodemailer from 'nodemailer'
 // };
 
 const transporter = nodemailer.createTransport({
-    service: 'gmail',
+    host: 'smtp.gmail.com',
+    port: 465,
+    secure: true, // Use SSL
     auth: {
         user: process.env.EMAIL_USER, 
         pass: process.env.EMAIL_APP_PASSWORD 
+    }
+});
+
+transporter.verify((error, success) => {
+    if (error) {
+        console.error("🚨 Email Setup Error:", error.message);
+    } else {
+        console.log("✅ Nodemailer is connected to Gmail successfully!");
     }
 });
 
