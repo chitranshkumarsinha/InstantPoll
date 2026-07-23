@@ -81,7 +81,6 @@ export default function App() {
             <Route path="/poll/:code" element={<VotingRoom />} />
             <Route path='/public' element={<PublicPolls/>}/>
             <Route path="/verify-otp" element={<VerifyOtp />} />
-            
           </Routes>
         </main>
 
