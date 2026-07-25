@@ -101,16 +101,12 @@ import nodemailer from 'nodemailer'
 // };
 
 const transporter = nodemailer.createTransport({
-    host: 'smtp.gmail.com',
-    port: 587,
-    secure: true, 
+    service: 'gmail', // Let Nodemailer handle the ports and host automatically
     auth: {
         user: process.env.EMAIL_USER, 
         pass: process.env.EMAIL_APP_PASSWORD 
-    },
-    family: 4 // <-- THIS IS THE FIX: Forces IPv4 routing
+    }
 });
-
 transporter.verify((error, success) => {
     if (error) {
         console.error("🚨 Email Setup Error:", error.message);
