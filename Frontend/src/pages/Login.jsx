@@ -1,7 +1,6 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Mail, Lock, Loader2, AlertCircle, LogIn, UserPlus } from 'lucide-react';
-// import { API_URL } from '../config.js';
 
 export default function Login() {
   const [isLogin, setIsLogin] = useState(true);
@@ -12,7 +11,6 @@ export default function Login() {
   
   const navigate = useNavigate();
 
-  // Helper to reset errors when switching tabs
   const handleTabSwitch = (loginMode) => {
     setIsLogin(loginMode);
     setError('');
@@ -25,38 +23,26 @@ export default function Login() {
 
     try {
       const baseUrl = 'https://instantpoll-backend.onrender.com';
+      // Route dynamically based on tab selection
+      const endpoint = isLogin ? '/api/auth/login' : '/api/auth/signup';
 
-      if (isLogin) {
-        // --- LOGIN FLOW ---
-        const res = await fetch(`${baseUrl}/api/auth/login`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ email, password })
-        });
-        const data = await res.json();
-        
-        if (!res.ok) throw new Error(data.error || 'Authentication failed.');
-        
-        localStorage.setItem('token', data.token);
-        navigate('/create');
+      const res = await fetch(`${baseUrl}${endpoint}`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, password })
+      });
 
-      } else {
-        // --- REGISTRATION: REQUEST OTP & REDIRECT ---
-        const res = await fetch(`${baseUrl}/api/auth/signup/request-otp`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ email }) // Only email is needed to request OTP
-        });
-        const data = await res.json();
-        
-        if (!res.ok) throw new Error(data.error || 'Failed to send OTP.');
-        
-        // Immediately route to the dedicated verification page, passing the credentials along
-        navigate('/verify-otp', { state: { email, password } });
-      }
+      const data = await res.json();
       
+      if (!res.ok) throw new Error(data.error || 'Authentication failed.');
+      
+      // Save the token and navigate straight to the app
+      localStorage.setItem('token', data.token);
+      navigate('/create');
+
     } catch (err) {
       setError(err.message);
+      
     } finally {
       setLoading(false);
     }
@@ -137,7 +123,7 @@ export default function Login() {
               disabled={loading}
               className="mt-4 w-full bg-amber-600 hover:bg-amber-500 text-zinc-950 font-bold py-3 rounded-lg flex items-center justify-center gap-2 disabled:opacity-50 transition-colors"
             >
-              {loading ? <Loader2 className="w-5 h-5 animate-spin" /> : (isLogin ? 'Sign In' : 'Request OTP')}
+              {loading ? <Loader2 className="w-5 h-5 animate-spin" /> : (isLogin ? 'Sign In' : 'Register')}
             </button>
           </form>
         </div>
