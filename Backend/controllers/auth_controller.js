@@ -61,6 +61,8 @@
 //         res.status(500).send('Server Error');
 //     }
 // }
+import dns from 'dns';
+dns.setDefaultResultOrder('ipv4first'); // 🚨 Forces Node to use IPv4
 
 import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
@@ -100,7 +102,7 @@ import nodemailer from 'nodemailer'
 
 const transporter = nodemailer.createTransport({
     host: 'smtp.gmail.com',
-    port: 465,
+    port: 587,
     secure: true, 
     auth: {
         user: process.env.EMAIL_USER, 
