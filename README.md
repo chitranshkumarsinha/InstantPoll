@@ -214,34 +214,6 @@ The app will be live at `http://localhost:5173`.
 
 ---
 
-## 🗺️ Roadmap Ideas
-
-- [ ] Wire up Redis-backed OTP email verification (scaffolding already present in `auth_controller.js` / `poll_controller.js`)
-- [ ] Move all frontend API calls to consistently use `VITE_API_URL` from `config.js`
-- [ ] Poll result charts/analytics for creators
-- [ ] Rate limiting on voting/auth endpoints
-- [ ] Dockerize backend + frontend for easier local setup
-
----
-
-## 🤝 Contributing
-
-Contributions, issues, and feature requests are welcome!
-
-1. Fork the repo
-2. Create your feature branch (`git checkout -b feature/amazing-feature`)
-3. Commit your changes (`git commit -m 'Add amazing feature'`)
-4. Push to the branch (`git push origin feature/amazing-feature`)
-5. Open a Pull Request
-
----
-
-## 📄 License
-
-No license file is currently included in this repository. Consider adding one (e.g. MIT) if you intend for others to reuse this code.
-
----
-
 ## 👤 Author
 
 **Chitransh Kumar Sinha**
